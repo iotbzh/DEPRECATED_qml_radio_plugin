@@ -1,0 +1,42 @@
+
+AM/FM Radio QML Plugin
+----------------------
+ Manuel Bachmann <manuel.bachmann@iot.bzh>
+
+ Description :
+ ***********
+  A QML plugin able to detect and use radio hardware, most notably RTL2832U
+chipsets (although it can easily be extended).
+  It also provides :
+- multiple radio hardware discovery ;
+- general status summary ;
+- AM/FM mode switching ;
+- frequency switching ;
+- mute on/off switching ;
+- ...
+
+ Installation :
+ ************
+$ autoreconf --install
+$ ./configure
+$ make
+$ make install
+
+ Testing :
+ *******
+$ qmlscene radio.qml
+
+ (if the plugin has been installed to a non-standard location, you will need to
+  specify its "qml" directory manually, by doing e.g. :
+$ qmlscene -I /opt/lib/qt5/qml radio.qml )
+
+ License :
+ *******
+Being massively based on the "rtl-sdr" library, it logically inherits its GPLv2
+license.
+
+ Requirements :
+ ************
+g++ (4.7 minimum for C++11 support), Qt >= 5.0, rtl-sdr >= 0.5.0, libusb-1.0,
+alsa.
+("rtl-sdr" can be fetched with "$ git clone git://git.osmocom.org/rtl-sdr")
