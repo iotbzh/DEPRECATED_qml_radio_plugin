@@ -18,7 +18,7 @@
 
 #include <QtQml/qqml.h>
 
-#include "radio/qml_radio.moc.h"
+#include "qml_radio.moc.h"
 #include "qml_rtlsdr_radio.h"
  //#include "qml_maxim_radio.h"
 

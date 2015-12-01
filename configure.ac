@@ -18,17 +18,28 @@ AM_INIT_AUTOMAKE([1.11 parallel-tests foreign no-dist-gzip dist-xz color-tests s
 
 AM_SILENT_RULES([yes])
 
+# Optional custom path for Qt moc
+AC_ARG_WITH(moc-dir,
+            AS_HELP_STRING([--with-moc-dir=DIR],[path to the Qt5 "moc" binary]),
+            [],[with_moc_dir="$PATH"])
+MOC_DIR=$with_moc_dir
+
 # Check for g++
 AC_PROG_CXX
 
 # Check for Qt moc
-AC_CHECK_PROGS(MOC, [moc-qt5 moc])
+AC_CHECK_PROGS(MOC, [moc-qt5 moc], [no], [$MOC_DIR])
+if test "x$MOC" = "xno"; then
+	AC_MSG_ERROR([Qt5 "moc" not found])
+fi
 AC_SUBST(MOC)
+AC_SUBST(MOC_DIR)
 
 # Initialize libtool
 LT_PREREQ([2.2])
 LT_INIT([disable-static])
 
+# Check functions, libs, packages
 PKG_PROG_PKG_CONFIG()
 
 AC_CHECK_FUNCS([strcasecmp])

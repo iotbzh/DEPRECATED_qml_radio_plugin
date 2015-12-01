@@ -2,10 +2,10 @@ bin_PROGRAMS =
 
 all-local :
 
-AM_CPPFLAGS = $(GCC_CPPFLAGS) -I$(top_srcdir)/radio
+AM_CPPFLAGS = $(GCC_CPPFLAGS) -I$(top_builddir)
 AM_CXXFLAGS = $(GCC_CXXFLAGS) -fPIC -std=c++11
 
-CLEANFILES = radio/qml_radio.moc.h
+CLEANFILES = $(top_builddir)/qml_radio.moc.h
 
 moduledir = $(libdir)/qt5/qml/radio
 module_LTLIBRARIES = libradioqtquick.la
@@ -18,11 +18,11 @@ libradioqtquick_la_SOURCES =		\
 	qml_radio_output.cpp		\
 	qml_rtlsdr_radio.cpp
 
-qml_radio.cpp : radio/qml_radio.moc.h
+qml_radio.cpp : $(top_builddir)/qml_radio.moc.h
+
+$(top_builddir)/qml_radio.moc.h : $(top_srcdir)/qml_radio.h
+	$(AM_V_GEN)$(MOC_DIR)/$(MOC) $< -o $@
 
 libradioqtquickdatadir = $(libdir)/qt5/qml/radio
 dist_libradioqtquickdata_DATA =		\
 	radio/qmldir
-
-radio/qml_radio.moc.h : $(top_srcdir)/qml_radio.h
-	$(AM_V_GEN)$(MOC) $< -o $@
