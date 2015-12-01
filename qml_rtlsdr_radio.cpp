@@ -35,7 +35,7 @@ RtlSdrRadio::RtlSdrRadio() : RadioImplementation(),
 		dev_ctx[i]->demod = NULL;
 		dev_ctx[i]->output = NULL;
 		dev_ctx[i]->mode = FM;
-		dev_ctx[i]->freq = 100.0e6;
+		dev_ctx[i]->freq = 100.0;
 		dev_ctx[i]->mute = false;
 		dev_init(i);
 	}
@@ -147,6 +147,7 @@ void RtlSdrRadio::apply_params(unsigned int id)
 	float freq = dev_ctx[id]->freq;
 	int rate;
 
+	freq *= 1000000;
 	rate = ((1000000 / 200000) + 1) * 200000;
 
 	if (mode == FM)
