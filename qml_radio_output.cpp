@@ -53,12 +53,12 @@ bool RadioOutputAlsa::play(void *buf, int len)
 {
 	int16_t *cbuf = (int16_t *)buf;
 	int frames = (len * sizeof(int16_t)) / 4;
+	int res;
 
-	if ((snd_pcm_writei (dev, cbuf, frames)) != frames) {
-		std::cerr << "Problem writing to device" << std::endl;
-		return false;
-	}
-	//snd_pcm_drain (dev);
+	if ((res = snd_pcm_writei(dev, cbuf, frames)) != frames)
+		snd_pcm_recover(dev, res, 0);
+	snd_pcm_drain(dev);
+	snd_pcm_prepare(dev);
 
 	return true;
 }

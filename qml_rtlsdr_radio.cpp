@@ -31,10 +31,12 @@ RtlSdrRadio::RtlSdrRadio() : RadioImplementation(),
 	for (int i = 0; i < init_dev_count; i++) {
 		dev_ctx[i] = (struct dev_ctx*) malloc(sizeof(struct dev_ctx));
 		dev_ctx[i]->dev = NULL;
+		dev_ctx[i]->dongle = NULL;
+		dev_ctx[i]->demod = NULL;
+		dev_ctx[i]->output = NULL;
 		dev_ctx[i]->mode = FM;
 		dev_ctx[i]->freq = 100.0e6;
 		dev_ctx[i]->mute = false;
-		dev_ctx[i]->should_run = true;
 		dev_init(i);
 	}
 
@@ -50,6 +52,7 @@ RtlSdrRadio::RtlSdrRadio() : RadioImplementation(),
 RtlSdrRadio::~RtlSdrRadio()
 {
 	for (int i = 0; i < init_dev_count; i++) {
+		dev_free(i);
 		free(dev_ctx[i]);
 	}
 	free(dev_ctx);
@@ -169,6 +172,7 @@ void RtlSdrRadio::start_threads(unsigned int id)
 	dev_ctx[id]->dongle = &dongle;
 	dev_ctx[id]->demod = &demod;
 	dev_ctx[id]->output = &output;
+	dev_ctx[id]->should_run = true;
 
 	pthread_rwlock_init(&demod.lck, NULL);
 	pthread_cond_init(&demod.ok, NULL);
@@ -180,6 +184,7 @@ void RtlSdrRadio::start_threads(unsigned int id)
 	 // dongle thread
 	dongle.dev = dev;	// from...
 	dongle.demod = &demod;	// to...
+	dongle.thr_finished = false;
 	pthread_create(&dongle.thr, NULL, dongle_thread_fn, (void*)dev_ctx[id]);
 
 	 // demod thread
@@ -188,9 +193,11 @@ void RtlSdrRadio::start_threads(unsigned int id)
 	demod.now_r = demod.now_j = 0;
 	demod.index = 0;
 	demod.pre_index = demod.now_index = 0;
+	dongle.thr_finished = false;
 	pthread_create(&demod.thr, NULL, demod_thread_fn, (void*)dev_ctx[id]);
 
 	 // output thread
+	dongle.thr_finished = false;
 	pthread_create(&output.thr, NULL, output_thread_fn, (void*)dev_ctx[id]);
 }
 
@@ -204,34 +211,41 @@ void RtlSdrRadio::stop_threads(unsigned int id)
 	demod_ctx *demod = dev_ctx[id]->demod;
 	output_ctx *output = dev_ctx[id]->output;
 
+	if (!dongle || !demod || !output)
+		return;
+
 	 // stop each "while" loop in the threads
 	dev_ctx[id]->should_run = false;
 
 	rtlsdr_cancel_async(dev);
-	if (dongle->thr) {
-		pthread_join(dongle->thr, NULL);
-	}
-	if (demod->thr) {
-		pthread_signal(&demod->ok, &demod->ok_m);
-		pthread_join(demod->thr, NULL);
-		pthread_rwlock_destroy(&demod->lck);
-		pthread_cond_destroy(&demod->ok);
-		pthread_mutex_destroy(&demod->ok_m);
-	}
-	if (output->thr) {
-		pthread_signal(&output->ok, &output->ok_m);
-		pthread_join(output->thr, NULL);
-		pthread_rwlock_destroy(&output->lck);
-		pthread_cond_destroy(&output->ok);
-		pthread_mutex_destroy(&output->ok_m);
-	}
+	pthread_signal(&demod->ok, &demod->ok_m);
+	pthread_signal(&output->ok, &output->ok_m);
+
+	while (!dongle->thr_finished ||
+	       !demod->thr_finished ||
+	       !output->thr_finished)
+		usleep(100000);		
+
+	pthread_join(dongle->thr, NULL);
+	pthread_join(demod->thr, NULL);
+	pthread_join(output->thr, NULL);
+	pthread_rwlock_destroy(&demod->lck);
+	pthread_cond_destroy(&demod->ok);
+	pthread_mutex_destroy(&demod->ok_m);
+	pthread_rwlock_destroy(&output->lck);
+	pthread_cond_destroy(&output->ok);
+	pthread_mutex_destroy(&output->ok_m);
 }
 
 static void rtlsdr_callback(unsigned char *buf, uint32_t len, void *ctx)
 {
-	dongle_ctx *dongle = (dongle_ctx *)ctx;
-	demod_ctx *demod = dongle->demod;
+	struct dev_ctx *dev_ctx_cur = (struct dev_ctx *)ctx;
+	dongle_ctx *dongle = dev_ctx_cur->dongle;
+	demod_ctx *demod = dev_ctx_cur->demod;
 	unsigned char tmp;
+
+	if (!dev_ctx_cur->should_run)
+		return;
 
 	// rotate 90°
 	for (int i = 0; i < (int)len; i += 8) {
@@ -263,8 +277,9 @@ void* RtlSdrRadio::dongle_thread_fn(void *ctx)
 	struct dev_ctx *dev_ctx_cur = (struct dev_ctx *)ctx;
 	dongle_ctx *dongle = dev_ctx_cur->dongle;
 
-	rtlsdr_read_async(dongle->dev, rtlsdr_callback, dongle, 0, 0);
+	rtlsdr_read_async(dongle->dev, rtlsdr_callback, dev_ctx_cur, 0, 0);
 
+	dongle->thr_finished = true;
 	return 0;
 }
 
@@ -357,7 +372,7 @@ void* RtlSdrRadio::demod_thread_fn(void *ctx)
 {
 	struct dev_ctx *dev_ctx_cur = (struct dev_ctx *)ctx;
 	demod_ctx *demod = dev_ctx_cur->demod;
-	output_ctx *output = demod->output;
+	output_ctx *output = dev_ctx_cur->output;
 
 	while (dev_ctx_cur->should_run) {
 		   pthread_wait(&demod->ok, &demod->ok_m);
@@ -378,6 +393,7 @@ void* RtlSdrRadio::demod_thread_fn(void *ctx)
 		   pthread_signal(&output->ok, &output->ok_m);
 	}
 
+	demod->thr_finished = true;
 	return 0;
 }
 
@@ -394,5 +410,6 @@ void* RtlSdrRadio::output_thread_fn(void *ctx)
 		  pthread_rwlock_unlock(&output->lck);
 	}
 
+	output->thr_finished = true;
 	return 0;
 }

@@ -36,6 +36,7 @@ typedef struct output_ctx output_ctx;
 
 struct dongle_ctx {
 	pthread_t thr;
+	bool thr_finished;
 	uint16_t buf[BUF_LEN];
 	uint32_t buf_len;
 	rtlsdr_dev_t* dev; // from...
@@ -44,6 +45,7 @@ struct dongle_ctx {
 
 struct demod_ctx {
 	pthread_t thr;
+	bool thr_finished;
 	pthread_rwlock_t lck;
 	pthread_cond_t ok;
 	pthread_mutex_t ok_m;
@@ -58,6 +60,7 @@ struct demod_ctx {
 
 struct output_ctx {
 	pthread_t thr;
+	bool thr_finished;
 	pthread_rwlock_t lck;
 	pthread_cond_t ok;
 	pthread_mutex_t ok_m;
