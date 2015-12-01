@@ -74,6 +74,7 @@ struct dev_ctx {
 	float freq;
 	bool mute;
 	bool should_run;
+	bool running;
 	 // thread contexts
 	dongle_ctx *dongle;
 	demod_ctx *demod;
