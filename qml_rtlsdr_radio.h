@@ -20,6 +20,8 @@
 #define QML_RTLSDR_RADIO_H
 
 #include <math.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <pthread.h>
 #include <rtl-sdr.h>
 
@@ -39,8 +41,6 @@ struct dongle_ctx {
 	bool thr_finished;
 	uint16_t buf[BUF_LEN];
 	uint32_t buf_len;
-	rtlsdr_dev_t* dev; // from...
-	demod_ctx *demod;  // to...
 };
 
 struct demod_ctx {
@@ -55,7 +55,6 @@ struct demod_ctx {
 	int buf_len;
 	int16_t res[BUF_LEN];
 	int res_len;
-	output_ctx *output; // to...
 };
 
 struct output_ctx {

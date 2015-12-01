@@ -19,10 +19,9 @@
 #ifndef QML_RADIO_OUTPUT_H
 #define QML_RADIO_OUTPUT_H
 
-#include <iostream>
-#include <stdint.h>
 #include <alsa/asoundlib.h>
 
+#include "qml_radio.h"
 
  /* RadioOutputImplementation is a virtual class, with 2 implementations :
   * - RadioOutputAlsa ;
