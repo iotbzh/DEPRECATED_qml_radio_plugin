@@ -48,7 +48,7 @@ Window {
 			currentIndex: 0
 			model: [ "FM", "AM" ]
 			y: 140
-			onCurrentIndexChanged: radio.mode = currentIndex
+			onActivated: radio.mode = currentIndex
 		}
 
 		Label {
