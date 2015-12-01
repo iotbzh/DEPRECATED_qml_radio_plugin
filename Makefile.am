@@ -21,7 +21,7 @@ libradioqtquick_la_SOURCES =		\
 qml_radio.cpp : $(top_builddir)/qml_radio.moc.h
 
 $(top_builddir)/qml_radio.moc.h : $(top_srcdir)/qml_radio.h
-	$(AM_V_GEN)$(MOC_DIR)/$(MOC) $< -o $@
+	$(AM_V_GEN)$(MOC_DIR)$(MOC) $< -o $@
 
 libradioqtquickdatadir = $(libdir)/qt5/qml/radio
 dist_libradioqtquickdata_DATA =		\

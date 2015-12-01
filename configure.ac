@@ -32,6 +32,12 @@ AC_CHECK_PROGS(MOC, [moc-qt5 moc], [no], [$MOC_DIR])
 if test "x$MOC" = "xno"; then
 	AC_MSG_ERROR([Qt5 "moc" not found])
 fi
+# Final variable should be empty or end with "/"
+if test "x$MOC_DIR" = "x$PATH"; then
+	MOC_DIR=""
+else
+	MOC_DIR="$MOC_DIR/"
+fi
 AC_SUBST(MOC)
 AC_SUBST(MOC_DIR)
 
