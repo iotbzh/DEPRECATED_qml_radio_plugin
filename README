@@ -1,5 +1,5 @@
 
-AM/FM Radio QML Plugin
+AM/FM Radio QML Plugin (v0.1)
 ----------------------
  Manuel Bachmann <manuel.bachmann@iot.bzh>
 
@@ -37,6 +37,9 @@ license.
 
  Requirements :
  ************
-g++ (4.7 minimum for C++11 support), Qt >= 5.0, rtl-sdr >= 0.5.0, libusb-1.0,
-alsa.
-("rtl-sdr" can be fetched with "$ git clone git://git.osmocom.org/rtl-sdr")
+ It requires :
+- g++ (4.7 minimum for C++11 support) ;
+- Qt >= 5.0 ;
+- rtl-sdr >= 0.5.0 (fetched with "$ git clone git://git.osmocom.org/rtl-sdr") ;
+- libusb-1.0 ;
+- alsa.

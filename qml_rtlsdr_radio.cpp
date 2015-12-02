@@ -234,9 +234,9 @@ void RtlSdrRadio::stop_threads(unsigned int id)
 	pthread_cond_destroy(&output->ok);
 	pthread_mutex_destroy(&output->ok_m);
 
-	free(dongle);
-	free(demod);
-	free(output);
+	free(dongle); dev_ctx[id]->dongle = NULL;
+	free(demod);  dev_ctx[id]->demod = NULL;
+	free(output); dev_ctx[id]->output = NULL;
 }
 
 static void rtlsdr_callback(unsigned char *buf, uint32_t len, void *ctx)
