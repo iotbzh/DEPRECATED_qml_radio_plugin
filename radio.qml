@@ -8,7 +8,7 @@ Window {
 	id: radio_window
 	visible: true
 	width: 320
-	height: 240
+	height: 300
 
 	Rectangle {
 		anchors.left: parent.left
@@ -32,28 +32,31 @@ Window {
 		Button {
 			text: "Turn on radio"
 			onClicked: radio.play()
-			y: 60
+			y: 80
 		}
 		Button {
 			text: "Turn off radio"
 			onClicked: radio.stop()
-			y: 85
+			y: 110
 		} 
 
 		Label {
 			text: "Mode"
-			y: 125
+			y: 160
 		}
 		ComboBox {
 			currentIndex: 0
 			model: [ "FM", "AM" ]
-			y: 140
-			onActivated: radio.mode = currentIndex
+			y: 180
+			onActivated: {
+				if (currentIndex === 0) radio.mode = Radio.FM;
+				                   else radio.mode = Radio.AM;
+			}
 		}
 
 		Label {
 			text: "Frequency"
-			y: 165
+			y: 220
 		}
 		SpinBox {
 			minimumValue: 60.0
@@ -61,27 +64,30 @@ Window {
 			value: 100.0
 			stepSize: 0.1
 			decimals: 2
-			y: 180
+			y: 240
 			onEditingFinished: radio.freq = value
 		}
 
 		Label {
 			text: "Mute"
 			x: 200
-			y: 165
+			y: 220
 		}
 		Switch {
 			checked: false
 			x: 200
-			y: 180
+			y: 240
 			onClicked: radio.mute = checked
 		}
 	}
 
-	RadioPropertyItem {
+	Radio {
 		id: radio
-	onPlaying: console.log("Playing radio")
-	onStopped: console.log("Stopped radio")
+		onPlaying: console.log("Playing radio")
+		onStopped: console.log("Stopped radio")
+		onModeChanged: console.log("Radio mode changed")
+		onFreqChanged: console.log("Radio frequency changed")
+		onMuteChanged: console.log("Radio mute state changed")
 	}
 
 }

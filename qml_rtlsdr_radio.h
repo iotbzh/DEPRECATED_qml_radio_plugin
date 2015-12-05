@@ -70,7 +70,7 @@ struct output_ctx {
 
 struct dev_ctx {
 	rtlsdr_dev_t* dev;
-	Mode mode;
+	Radio::Mode mode;
 	float freq;
 	bool mute;
 	bool should_run;
@@ -88,15 +88,15 @@ public:
 	~RtlSdrRadio() override;
 
 private:
-	unsigned int dev_count(void)               override;
-	     QString dev_name(unsigned int)        override;
-	        bool dev_init(unsigned int)        override;
-	        bool dev_free(unsigned int)        override;
-		void set_mode(unsigned int, Mode)  override;
-		void set_freq(unsigned int, float) override;
-	        void set_mute(unsigned int, bool)  override;
-	        void     play(unsigned int)        override;
-	        void     stop(unsigned int)        override;
+	unsigned int dev_count(void)                     override;
+	     QString dev_name(unsigned int)              override;
+	        bool dev_init(unsigned int)              override;
+	        bool dev_free(unsigned int)              override;
+		void set_mode(unsigned int, Radio::Mode) override;
+		void set_freq(unsigned int, float)       override;
+	        void set_mute(unsigned int, bool)        override;
+	        void     play(unsigned int)              override;
+	        void     stop(unsigned int)              override;
 
 	void apply_params(unsigned int);
 	void start_threads(unsigned int);

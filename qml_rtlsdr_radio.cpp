@@ -34,7 +34,7 @@ RtlSdrRadio::RtlSdrRadio() : RadioImplementation(),
 		dev_ctx[i]->dongle = NULL;
 		dev_ctx[i]->demod = NULL;
 		dev_ctx[i]->output = NULL;
-		dev_ctx[i]->mode = FM;
+		dev_ctx[i]->mode = Radio::FM;
 		dev_ctx[i]->freq = 100.0;
 		dev_ctx[i]->mute = false;
 		dev_init(i);
@@ -105,7 +105,7 @@ bool RtlSdrRadio::dev_free(unsigned int id)
 	return true;
 }
 
-void RtlSdrRadio::set_mode(unsigned int id, Mode mode)
+void RtlSdrRadio::set_mode(unsigned int id, Radio::Mode mode)
 {
 	if (init_dev_count < id + 1)
 		return;
@@ -150,14 +150,14 @@ void RtlSdrRadio::stop(unsigned int id)
 void RtlSdrRadio::apply_params(unsigned int id)
 {
 	rtlsdr_dev_t* dev = dev_ctx[id]->dev;
-	Mode mode = dev_ctx[id]->mode;
+	Radio::Mode mode = dev_ctx[id]->mode;
 	float freq = dev_ctx[id]->freq;
 	int rate;
 
 	freq *= 1000000;
 	rate = ((1000000 / 200000) + 1) * 200000;
 
-	if (mode == FM)
+	if (mode == Radio::FM)
 		freq += 16000;
 	freq += rate / 4;
 
@@ -387,7 +387,7 @@ void* RtlSdrRadio::demod_thread_fn(void *ctx)
 		   pthread_wait(&demod->ok, &demod->ok_m);
 		   pthread_rwlock_wrlock(&demod->lck);
 		lowpass_demod(demod);
-		if (dev_ctx->mode == FM)
+		if (dev_ctx->mode == Radio::FM)
 			fm_demod(demod);
 		else
 			am_demod(demod);

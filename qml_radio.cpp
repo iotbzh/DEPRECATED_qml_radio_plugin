@@ -26,17 +26,24 @@ Radio::Radio(QObject *parent=0) : QObject(parent),
 				  mRadio(NULL),
 				  mDevCount(0),
 				  mCurDev(0),
-				  mCurMode("FM"),
+				  mCurMode(FM),
 				  mCurFreq(100.0),
 				  mCurMute(false)
 {
 	/*
-	if (strcasecmp(getenv(QML_RADIO_IMPL), "Maxim") == 0) {
-		mRadio = new MaximRadio();
-	} else {
-		mRadio = new RtlSdrRadio();
-		if (!this->works())
+	char *impl_env = getenv("QML_RADIO_HARDWARE");
+	mRadio = NULL;
+
+	if (impl_env) {
+		if (strcasecmp(impl_env), "Maxim") == 0)
 			mRadio = new MaximRadio();
+		if (strcasecmp(impl_env), "RtlSdr") == 0)
+			mRadio = new RtlSdrRadio();
+	}
+	if (!mRadio) {
+		mRadio = new MaximRadio();
+		if (!this->works())
+			mRadio = new RtlSdrRadio();
 	}
 	*/
 	mRadio = new RtlSdrRadio();
@@ -71,23 +78,21 @@ unsigned int Radio::num()
 void Radio::setNum(unsigned int num)
 {
 	mCurDev = num;
+
+	emit numChanged();
 }
 
-QString Radio::mode()
+Radio::Mode Radio::mode()
 {
 	return mCurMode;
 }
-void Radio::setMode(QString mode)
+void Radio::setMode(Radio::Mode mode)
 {
-	if ((mode == "FM") || (mode == "AM"))
-		mCurMode = mode;
-	else
-		mCurMode = "FM";
+	mCurMode = mode;
 
-	if (mCurMode == "FM")
-		mRadio->set_mode(mCurDev, FM);
-	else
-		mRadio->set_mode(mCurDev, AM);
+	mRadio->set_mode(mCurDev, mCurMode);
+
+	emit modeChanged();
 }
 
 float Radio::freq()
@@ -99,6 +104,8 @@ void Radio::setFreq(float freq)
 	mCurFreq = freq;
 
 	mRadio->set_freq(mCurDev, mCurFreq);
+
+	emit freqChanged();
 }
 
 bool Radio::mute()
@@ -110,6 +117,8 @@ void Radio::setMute(bool mute)
 	mCurMute = mute;
 
 	mRadio->set_mute(mCurDev, mCurMute);
+
+	emit muteChanged();
 }
 
 void Radio::play()
@@ -145,5 +154,5 @@ void QmlRadioPlugin::registerTypes(const char *uri)
 {
 	Q_ASSERT(uri == QLatin1String("radio"));
 
-	int ret = qmlRegisterType<Radio>(uri, 1, 0, "RadioPropertyItem");
+	int ret = qmlRegisterType<Radio>(uri, 1, 0, "Radio");
 }
