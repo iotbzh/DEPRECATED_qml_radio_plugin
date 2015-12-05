@@ -21,6 +21,9 @@
 
 #include <alsa/asoundlib.h>
 
+#include <pulse/simple.h>
+#include <pulse/error.h>
+
 #include "qml_radio.h"
 
  /* RadioOutputImplementation is a virtual class, with 2 implementations :
@@ -35,7 +38,7 @@ public:
 
 	virtual bool play(void*, int) = 0;
 
-	RadioOutputImplementation *mRadioOutput;
+	bool works;
 };
 
 
@@ -52,7 +55,7 @@ private:
 	snd_pcm_hw_params_t *hw_params;
 };
 
-/* class RadioOutputPulse : public RadioOutputImplementation
+class RadioOutputPulse : public RadioOutputImplementation
 {
 public:
 	RadioOutputPulse();
@@ -61,8 +64,8 @@ public:
 private:
 	bool play(void *, int) override;
 
-	snd_pcm_t *dev;
-	snd_pcm_hw_params_t *hw_params;
-}; */
+	pa_simple *pa;
+	pa_sample_spec *pa_spec;
+};
 
 #endif  // QML_RTLSDR_RADIO_H

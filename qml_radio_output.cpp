@@ -24,8 +24,11 @@ RadioOutputAlsa::RadioOutputAlsa() : RadioOutputImplementation(),
 {
 	unsigned int rate = 44100;
 
-	if (snd_pcm_open(&dev, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0)
-		std::cerr << "Could not open primary audio device" << std::endl;
+	if (snd_pcm_open(&dev, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0) {
+		std::cerr << "Could not open primary ALSA device" << std::endl;
+		works = false;
+		return;
+	}
 
 	snd_pcm_hw_params_malloc(&hw_params);
 	snd_pcm_hw_params_any(dev, hw_params);
@@ -37,7 +40,7 @@ RadioOutputAlsa::RadioOutputAlsa() : RadioOutputImplementation(),
 
 	if (snd_pcm_hw_params (dev, hw_params) < 0) {
 		std::cerr << "Could not set hardware parameters" << std::endl;
-		snd_pcm_hw_params_free (hw_params);
+		works = false;
 	}
 	snd_pcm_hw_params_free (hw_params);
 
@@ -59,6 +62,43 @@ bool RadioOutputAlsa::play(void *buf, int len)
 		snd_pcm_recover(dev, res, 0);
 	snd_pcm_drain(dev);
 	snd_pcm_prepare(dev);
+
+	return true;
+}
+
+
+RadioOutputPulse::RadioOutputPulse() : RadioOutputImplementation(),
+				       pa(NULL),
+				       pa_spec(NULL)
+{
+	int error;
+
+	pa_spec = (pa_sample_spec*) malloc(sizeof(pa_sample_spec));
+	pa_spec->format = PA_SAMPLE_S16LE;
+	pa_spec->rate = 44100;
+	pa_spec->channels = 2;
+
+	if (!(pa = pa_simple_new(NULL, "qml-radio-plugin", PA_STREAM_PLAYBACK, NULL,
+	                         "radio-output", pa_spec, NULL, NULL, &error))) {
+		std::cerr << "Error connecting to PulseAudio : " << pa_strerror(error) << std::endl;
+		works = false;
+	}
+
+	free(pa_spec);	
+}
+
+RadioOutputPulse::~RadioOutputPulse()
+{
+	pa_simple_free(pa);
+}
+
+bool RadioOutputPulse::play(void *buf, int len)
+{
+	int error;
+
+	if (pa_simple_write(pa, buf, (size_t) len, &error) < 0)
+		std::cerr << "Error writing to PulseAudio : " << pa_strerror(error) << std::endl;
+	pa_simple_drain(pa, &error);
 
 	return true;
 }

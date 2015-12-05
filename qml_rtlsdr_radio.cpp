@@ -40,13 +40,20 @@ RtlSdrRadio::RtlSdrRadio() : RadioImplementation(),
 		dev_init(i);
 	}
 
-	/*
-	if (strcasecmp(getenv(QML_RADIO_OUTPUT), "Alsa") == 0)
-		mRadioOutput = new RadioOutputAlsa();
-	else
+	char *impl_env = getenv("QML_RADIO_OUTPUT");
+	mRadioOutput = NULL;
+
+	if (impl_env) {
+		if (strcasecmp(impl_env, "Pulse") == 0)
+			mRadioOutput = new RadioOutputPulse();
+		if (strcasecmp(impl_env, "Alsa") == 0)
+			mRadioOutput = new RadioOutputAlsa();
+	}
+	if (!mRadioOutput) {
 		mRadioOutput = new RadioOutputPulse();
-	*/
-	mRadioOutput = new RadioOutputAlsa();
+		if (!mRadioOutput->works)
+			mRadioOutput = new RadioOutputAlsa();
+	}
 }
 
 RtlSdrRadio::~RtlSdrRadio()

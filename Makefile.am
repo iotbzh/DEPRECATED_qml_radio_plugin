@@ -10,8 +10,8 @@ CLEANFILES = $(top_builddir)/qml_radio.moc.h
 moduledir = $(libdir)/qt5/qml/radio
 module_LTLIBRARIES = libradioqtquick.la
 libradioqtquick_la_LDFLAGS = -module -avoid-version
-libradioqtquick_la_LIBADD = $(QT5QML_LIBS) $(RTLSDR_LIBS) $(ALSA_LIBS)
-libradioqtquick_la_CXXFLAGS = $(AM_CXXFLAGS) $(QT5QML_CFLAGS) $(RTLSDR_CFLAGS) $(ALSA_CFLAGS)
+libradioqtquick_la_LIBADD = $(QT5QML_LIBS) $(RTLSDR_LIBS) $(ALSA_LIBS) $(PULSE_LIBS)
+libradioqtquick_la_CXXFLAGS = $(AM_CXXFLAGS) $(QT5QML_CFLAGS) $(RTLSDR_CFLAGS) $(ALSA_CFLAGS) $(PULSE_CFLAGS)
 
 libradioqtquick_la_SOURCES =		\
 	qml_radio.cpp			\
