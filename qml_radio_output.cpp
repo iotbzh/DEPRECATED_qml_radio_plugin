@@ -22,7 +22,7 @@ RadioOutputAlsa::RadioOutputAlsa() : RadioOutputImplementation(),
 				     dev(NULL),
 				     hw_params(NULL)
 {
-	unsigned int rate = 44100;
+	unsigned int rate = 22050;
 
 	if (snd_pcm_open(&dev, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0) {
 		std::cerr << "Could not open primary ALSA device" << std::endl;
@@ -55,13 +55,14 @@ RadioOutputAlsa::~RadioOutputAlsa()
 bool RadioOutputAlsa::play(void *buf, int len)
 {
 	int16_t *cbuf = (int16_t *)buf;
-	int frames = (len * sizeof(int16_t)) / 4;
+	int frames = len / 2;
 	int res;
 
-	if ((res = snd_pcm_writei(dev, cbuf, frames)) != frames)
+	if ((res = snd_pcm_writei(dev, cbuf, frames)) != frames) {
 		snd_pcm_recover(dev, res, 0);
-	snd_pcm_drain(dev);
-	snd_pcm_prepare(dev);
+		snd_pcm_prepare(dev);
+	}
+	//snd_pcm_drain(dev);
 
 	return true;
 }
@@ -75,7 +76,7 @@ RadioOutputPulse::RadioOutputPulse() : RadioOutputImplementation(),
 
 	pa_spec = (pa_sample_spec*) malloc(sizeof(pa_sample_spec));
 	pa_spec->format = PA_SAMPLE_S16LE;
-	pa_spec->rate = 44100;
+	pa_spec->rate = 22050;
 	pa_spec->channels = 2;
 
 	if (!(pa = pa_simple_new(NULL, "qml-radio-plugin", PA_STREAM_PLAYBACK, NULL,
@@ -96,9 +97,9 @@ bool RadioOutputPulse::play(void *buf, int len)
 {
 	int error;
 
-	if (pa_simple_write(pa, buf, (size_t) len, &error) < 0)
+	if (pa_simple_write(pa, buf, (size_t) len*2, &error) < 0)
 		std::cerr << "Error writing to PulseAudio : " << pa_strerror(error) << std::endl;
-	pa_simple_drain(pa, &error);
+	//pa_simple_drain(pa, &error);
 
 	return true;
 }
