@@ -1,5 +1,5 @@
 
-AM/FM Radio QML Plugin (v0.1)
+AM/FM Radio QML Plugin (v0.2)
 ----------------------
  Manuel Bachmann <manuel.bachmann@iot.bzh>
 
@@ -26,6 +26,12 @@ $ make install
  *******
 $ qmlscene radio.qml
 
+ By default, it will try to use PulseAudio, and fall back to pure ALSA.
+ You can force an audio backend by setting the QML_RADIO_OUTPUT variable :
+export QML_RADIO_OUTPUT=Pulse
+ or :
+export QML_RADIO_OUTPUT=Alsa
+
  (if the plugin has been installed to a non-standard location, you will need to
   specify its "qml" directory manually, by doing e.g. :
 $ qmlscene -I /opt/lib/qt5/qml radio.qml )
@@ -42,4 +48,5 @@ license.
 - Qt >= 5.0 ;
 - rtl-sdr >= 0.5.0 (fetched with "$ git clone git://git.osmocom.org/rtl-sdr") ;
 - libusb-1.0 ;
+- libpulse-simple ;
 - alsa.

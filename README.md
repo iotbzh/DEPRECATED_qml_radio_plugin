@@ -9,7 +9,7 @@ AM/FM Radio QML Plugin
  The <strong>AM/FM Radio QML Plugin</strong> provides a simple interface for detecting, initializing, and using AM/FM radio devices within QML code. It ships a sample QML application for demonstration purposes.
 
  It intends to support multiple radio chipsets, and the ALSA/PulseAudio audio backends.
- Currently, it only supports <strong>Realtek RTL2832U-based chipsets</strong>, and the ALSA audio backend. For this purpose, it heavily depends on the RTL-SDR library.
+ Currently, it only supports <strong>Realtek RTL2832U-based chipsets</strong>. For this purpose, it heavily depends on the RTL-SDR library.
 
 ![QMLRadioPlugin screenshots](http://www.tarnyko.net/repo/qmlradio_plugin.png)
 
@@ -20,6 +20,7 @@ You will need the following tools & libraries :
 * GNU g++ (> 4.7) ;
 * Qt (>= 5.0) ;
 * rtl-sdr (>= 0.5.0) <i>(clone it from "git://git.osmocom.org/rtl-sdr")</i> ;
+* libpulse-simple ;
 * alsa.
 
 ## Installation
@@ -36,6 +37,9 @@ make install </strong>
 Type the following command :
 
 <strong>$ qmlscene radio.qml</strong>
+
+<i>(use the QML_RADIO_OUTPUT environment variable to force an audio backend :<br />
+<strong>& export QML_RADIO_OUTPUT=Pulse/Alsa</strong> )</i>
 
 <i>(if the plugin has been installed to a non-standard location, such as "/opt" : <br />
 <strong>$ qmlscene -I /opt/lib/qt5/qml radio.qml</strong> )</i>
