@@ -3,7 +3,7 @@ bin_PROGRAMS =
 all-local :
 
 AM_CPPFLAGS = $(GCC_CPPFLAGS) -I$(top_builddir)
-AM_CXXFLAGS = $(GCC_CXXFLAGS) -fPIC -std=c++11
+AM_CXXFLAGS = $(GCC_CFLAGS) -fPIC -std=c++11
 
 CLEANFILES = $(top_builddir)/qml_radio.moc.h
 
